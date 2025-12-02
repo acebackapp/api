@@ -1,61 +1,95 @@
-# Mosher Labs Basic Repo Template - Project Memory
+# Discr API - Project Memory
 
 This file contains persistent context for Claude Code sessions on this project.
 It will be automatically loaded at the start of every session.
 
 ## Project Overview
 
-This is a template repository for creating new Mosher Labs projects. It provides
-a standardized starting point with pre-configured tooling and workflows.
+This is the Supabase backend for Discr, containing database migrations, edge
+functions, and API configuration.
 
 **Key Details:**
 
-- **Purpose:** Template for new repositories
+- **Backend:** Supabase (PostgreSQL, Edge Functions, Auth, Storage)
+- **Database:** PostgreSQL 17
+- **Migrations:** Supabase CLI migration system
+- **Edge Functions:** Deno-based serverless functions
 - **CI/CD:** GitHub Actions with release workflow
 - **Linting:** Pre-commit hooks for code quality
-- **Pattern:** Fork or use as template, then customize
 
 ## Repository Structure
 
 ```text
-basic-repo-template/
+api/
 ├── .github/workflows/     # CI/CD workflows
-│   └── release.yml        # Semantic versioning & releases
-├── .pre-commit-config.yaml
-├── README.md
-└── CLAUDE.md
+├── supabase/
+│   ├── migrations/        # Database migrations
+│   ├── functions/         # Edge functions (Deno)
+│   └── config.toml        # Supabase configuration
+├── .env                   # Environment variables (DO NOT COMMIT)
+├── .env.example           # Environment template
+└── README.md
 ```
 
-## Using This Template
+## Supabase Project Details
 
-### Creating a New Repo
+- **Project Name:** discr-mvp
+- **Project Ref:** xhaogdigrsiwxdjmjzgx
+- **Region:** us-west-2
+- **Database:** PostgreSQL 17.6.1.054
+- **Dashboard:** <https://app.supabase.com/project/xhaogdigrsiwxdjmjzgx>
 
-1. **Use as template:** Click "Use this template" on GitHub
-1. **Clone locally:** `git clone <your-new-repo>`
-1. **Update README.md:** Replace template content with project description
-1. **Customize workflows:** Adjust `.github/workflows/` as needed
-1. **Install pre-commit:** `pre-commit install`
-1. **Create CLAUDE.md:** Document project-specific context
+## Development Setup
 
-### Pre-configured Features
+### Prerequisites
 
-- **Release workflow:** Automatic semantic versioning from Conventional Commits
-- **Pre-commit hooks:** YAML, Markdown, and commit message linting
-- **GitHub Actions:** Ready to use CI/CD
-- **Documentation:** README template with badges
+- Supabase CLI
+- Node.js 18+ and npm (for edge functions)
+
+### Environment Variables
+
+The `.env` file contains:
+
+- `SUPABASE_PROJECT_REF` - Project reference ID
+- `SUPABASE_URL` - API endpoint
+- `SUPABASE_ANON_KEY` - Anonymous key (safe for client use)
+- `SUPABASE_SERVICE_ROLE_KEY` - Service role key (server-only, keep secure!)
+- `DATABASE_URL` - PostgreSQL connection string
+
+### Common Commands
+
+```bash
+# Link to Supabase project
+supabase link --project-ref xhaogdigrsiwxdjmjzgx
+
+# Create new migration
+supabase migration new migration_name
+
+# Apply migrations locally
+supabase db reset
+
+# Push migrations to production
+supabase db push
+
+# Create new edge function
+supabase functions new function_name
+
+# Serve functions locally
+supabase functions serve
+
+# Deploy functions
+supabase functions deploy function_name
+```
 
 ## Git Workflow
 
 1. **Create feature branch:** `git checkout -b feature/description`
-1. **Make changes** to code or documentation
+1. **Make changes** to migrations or functions
 1. **ALWAYS run pre-commit BEFORE committing:** `pre-commit run --all-files`
    - Fix ALL errors (especially markdown and YAML formatting)
    - Do NOT commit with `--no-verify` unless absolutely necessary
 1. **Commit with conventional format:** `git commit -m "type: description"`
 1. **Push and create PR:** `gh pr create --title "feat: description"`
-1. **Test changes:** If your changes reference shared workflows that were also updated,
-   temporarily change the reference from `@main` to `@your-branch` to test, verify
-   the PR passes, then change back to `@main` before merging
 1. **Merge to main:** Automatic release created based on commits
 
 **Commit Format:** Conventional Commits (enforced by pre-commit hook)
@@ -65,9 +99,6 @@ basic-repo-template/
 - `docs:` - Documentation changes (no version bump)
 - `chore:` - Maintenance (no version bump)
 - `refactor:` - Code refactoring (no version bump)
-- `test:` - Temporary test changes (like branch references)
-
-**Breaking changes:** Add `!` after type (e.g., `feat!:`) or include `BREAKING CHANGE:` in commit body for major version bump
 
 ## Pre-commit Hooks
 
@@ -90,44 +121,41 @@ pre-commit autoupdate           # Update hook versions
 
 ### Code Quality Standards
 
-**CRITICAL:** All code must adhere to linter rules from the start. Do NOT write
-code that needs fixing after running pre-commit hooks.
+**CRITICAL:** All code must adhere to linter rules from the start.
 
-**Markdown (markdownlint):**
+### Database Migrations
 
-Configuration: `.markdownlint.yaml` (allows 2-space indent, 120 char lines)
+- Always create migrations for schema changes
+- Never modify existing migrations after they're merged
+- Test migrations locally before pushing
+- Use descriptive migration names
 
-- Nested lists under unordered items: Use 2-space indentation
-- Nested lists under ordered items: Use 2-space indentation
-- Inline format for simple nested items: `**Item:** Detail 1, Detail 2`
-- Line length: 120 characters max (code/tables excluded)
-- Bare URLs: Allowed in reference sections
-- Bold for emphasis: Allowed in lists
+### Edge Functions
 
-**YAML (yamllint):**
+- Written in TypeScript/Deno
+- No Node.js runtime - use Deno APIs
+- Handle errors gracefully
+- Validate all inputs
+- Use environment variables for configuration
 
-- Maximum line length: 80 characters
-- Use 2-space indentation
-- No trailing whitespace
-- Proper quoting for strings containing special characters
+### Security
 
-### When Working on This Repo
-
-1. **Write linter-compliant code from the start** - Don't fix after the fact
-1. **Run pre-commit hooks** BEFORE committing (fix all errors!)
-1. **Follow Conventional Commits** - Enables automatic versioning
-1. **Update CLAUDE.md** - Document important project context
-1. **Test shared workflow changes** - Use branch references before merging
+- NEVER commit `.env` file
+- Service role key has full database access - keep secure
+- Use RLS (Row Level Security) policies
+- Validate all user inputs
+- Use parameterized queries
 
 ## References
 
 - @README.md - Repository overview
-- Shared Workflows: <https://github.com/Mosher-Labs/.github>
-- Conventional Commits: <https://www.conventionalcommits.org/>
+- Supabase Documentation: <https://supabase.com/docs>
+- Supabase CLI Reference: <https://supabase.com/docs/reference/cli>
+- Deno Documentation: <https://deno.land/manual>
 
 ---
 
-**Last Updated:** 2025-11-18
+**Last Updated:** 2025-11-30
 
 This file should be updated whenever:
 
