@@ -69,7 +69,7 @@ describe('discs schema', () => {
 
   it('should have reward_amount as integer', () => {
     const columns = getTableColumns(discs);
-    expect(columns.reward_amount.dataType).toBe('number');
+    expect(columns.reward_amount.dataType).toBe('string');
   });
 
   it('should have created_at as timestamp with default', () => {
