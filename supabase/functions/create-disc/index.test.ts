@@ -13,13 +13,13 @@ Deno.test('create-disc: should return 401 when not authenticated', async () => {
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ name: 'Test Disc' }),
+    body: JSON.stringify({ mold: 'Test Disc' }),
   });
 
   assertEquals(response.status, 401);
 });
 
-Deno.test('create-disc: should return 400 when name is missing', async () => {
+Deno.test('create-disc: should return 400 when mold is missing', async () => {
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   // Sign up a test user
@@ -40,6 +40,7 @@ Deno.test('create-disc: should return 400 when name is missing', async () => {
   assertEquals(response.status, 400);
   const error = await response.json();
   assertExists(error.error);
+  assertEquals(error.error, 'Mold is required');
 });
 
 Deno.test('create-disc: should create disc with minimal data', async () => {
@@ -58,7 +59,7 @@ Deno.test('create-disc: should create disc with minimal data', async () => {
       Authorization: `Bearer ${authData.session?.access_token}`,
     },
     body: JSON.stringify({
-      name: 'Test Disc',
+      mold: 'Destroyer',
       flight_numbers: { speed: 7, glide: 5, turn: 0, fade: 1 },
     }),
   });
@@ -66,7 +67,8 @@ Deno.test('create-disc: should create disc with minimal data', async () => {
   assertEquals(response.status, 201);
   const data = await response.json();
   assertExists(data.id);
-  assertEquals(data.name, 'Test Disc');
+  assertEquals(data.name, 'Destroyer'); // name should be set to mold
+  assertEquals(data.mold, 'Destroyer');
   assertEquals(data.owner_id, authData.user?.id);
 });
 
@@ -80,9 +82,8 @@ Deno.test('create-disc: should create disc with all fields', async () => {
   });
 
   const discData = {
-    name: 'Innova Destroyer',
-    manufacturer: 'Innova',
     mold: 'Destroyer',
+    manufacturer: 'Innova',
     plastic: 'Star',
     weight: 175,
     color: 'Blue',
@@ -103,7 +104,7 @@ Deno.test('create-disc: should create disc with all fields', async () => {
   assertEquals(response.status, 201);
   const data = await response.json();
   assertExists(data.id);
-  assertEquals(data.name, discData.name);
+  assertEquals(data.name, discData.mold); // name should be set to mold
   assertEquals(data.manufacturer, discData.manufacturer);
   assertEquals(data.mold, discData.mold);
   assertEquals(data.plastic, discData.plastic);
@@ -130,7 +131,7 @@ Deno.test('create-disc: should validate flight numbers', async () => {
       Authorization: `Bearer ${authData.session?.access_token}`,
     },
     body: JSON.stringify({
-      name: 'Test Disc',
+      mold: 'Destroyer',
       flight_numbers: { speed: 20, glide: 5, turn: 0, fade: 1 }, // Invalid speed
     }),
   });
