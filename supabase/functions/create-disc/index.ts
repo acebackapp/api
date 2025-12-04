@@ -10,9 +10,8 @@ interface FlightNumbers {
 }
 
 interface CreateDiscRequest {
-  name: string;
   manufacturer?: string;
-  mold?: string;
+  mold: string;
   plastic?: string;
   weight?: number;
   color?: string;
@@ -89,8 +88,8 @@ Deno.serve(async (req) => {
   }
 
   // Validate required fields
-  if (!body.name || body.name.trim() === '') {
-    return new Response(JSON.stringify({ error: 'Name is required' }), {
+  if (!body.mold || body.mold.trim() === '') {
+    return new Response(JSON.stringify({ error: 'Mold is required' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
     });
@@ -112,12 +111,12 @@ Deno.serve(async (req) => {
     });
   }
 
-  // Create disc
+  // Create disc (use mold as name)
   const { data: disc, error: dbError } = await supabase
     .from('discs')
     .insert({
       owner_id: user.id,
-      name: body.name,
+      name: body.mold, // Use mold as the disc name
       manufacturer: body.manufacturer,
       mold: body.mold,
       plastic: body.plastic,
