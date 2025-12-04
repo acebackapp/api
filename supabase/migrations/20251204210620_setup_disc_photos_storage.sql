@@ -1,0 +1,76 @@
+-- Create storage bucket for disc photos
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES (
+  'disc-photos',
+  'disc-photos',
+  false, -- Private bucket
+  5242880, -- 5MB in bytes
+  ARRAY['image/jpeg', 'image/png', 'image/webp']
+)
+ON CONFLICT (id) DO NOTHING;
+
+-- Enable RLS on storage.objects
+ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+
+-- Policy: Users can upload photos to their own folder
+-- Path structure: {user_id}/{disc_id}/{photo_type}.jpg
+CREATE POLICY "Users can upload own disc photos"
+ON storage.objects
+FOR INSERT
+TO authenticated
+WITH CHECK (
+  bucket_id = 'disc-photos' AND
+  (storage.foldername(name))[1] = auth.uid()::text AND
+  EXISTS (
+    SELECT 1 FROM public.discs
+    WHERE discs.id::text = (storage.foldername(name))[2]
+    AND discs.owner_id = auth.uid()
+  )
+);
+
+-- Policy: Users can read their own disc photos
+CREATE POLICY "Users can read own disc photos"
+ON storage.objects
+FOR SELECT
+TO authenticated
+USING (
+  bucket_id = 'disc-photos' AND
+  (storage.foldername(name))[1] = auth.uid()::text
+);
+
+-- Policy: Users can update their own disc photos
+CREATE POLICY "Users can update own disc photos"
+ON storage.objects
+FOR UPDATE
+TO authenticated
+USING (
+  bucket_id = 'disc-photos' AND
+  (storage.foldername(name))[1] = auth.uid()::text
+)
+WITH CHECK (
+  bucket_id = 'disc-photos' AND
+  (storage.foldername(name))[1] = auth.uid()::text
+);
+
+-- Policy: Users can delete their own disc photos
+CREATE POLICY "Users can delete own disc photos"
+ON storage.objects
+FOR DELETE
+TO authenticated
+USING (
+  bucket_id = 'disc-photos' AND
+  (storage.foldername(name))[1] = auth.uid()::text
+);
+
+-- TODO: Add policy for finders to read photos of discs in active recovery events
+-- This will be implemented when recovery events feature is added
+
+-- Add comments
+COMMENT ON POLICY "Users can upload own disc photos" ON storage.objects IS
+  'Users can upload photos to their own folder with path: {user_id}/{disc_id}/{photo_type}';
+COMMENT ON POLICY "Users can read own disc photos" ON storage.objects IS
+  'Users can read photos from their own folder';
+COMMENT ON POLICY "Users can update own disc photos" ON storage.objects IS
+  'Users can update photos in their own folder';
+COMMENT ON POLICY "Users can delete own disc photos" ON storage.objects IS
+  'Users can delete photos from their own folder';
