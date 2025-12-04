@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, uuid, integer, jsonb } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, uuid, integer, jsonb, numeric } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 import { profiles } from './profiles';
 import { qrCodes } from './qr-codes';
@@ -42,7 +42,7 @@ export const discs = pgTable('discs', {
   weight: integer('weight'),
   color: text('color'),
   flight_numbers: jsonb('flight_numbers').$type<FlightNumbers>().notNull(),
-  reward_amount: integer('reward_amount'),
+  reward_amount: numeric('reward_amount', { precision: 10, scale: 2 }),
   notes: text('notes'),
   created_at: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updated_at: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),

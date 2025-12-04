@@ -88,7 +88,7 @@ Deno.test('create-disc: should create disc with all fields', async () => {
     weight: 175,
     color: 'Blue',
     flight_numbers: { speed: 12, glide: 5, turn: -1, fade: 3 },
-    reward_amount: 500,
+    reward_amount: 5.0,
     notes: 'My favorite disc!',
   };
 
