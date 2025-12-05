@@ -120,7 +120,8 @@ Deno.serve(async (req) => {
         plastic: disc.plastic,
         color: disc.color,
         reward_amount: disc.reward_amount,
-        owner_display_name: disc.owner?.display_name || 'Anonymous',
+        owner_display_name:
+          (Array.isArray(disc.owner) ? disc.owner[0]?.display_name : disc.owner?.display_name) || 'Anonymous',
         photo_url: photoUrl,
       },
       has_active_recovery: !!activeRecovery,
