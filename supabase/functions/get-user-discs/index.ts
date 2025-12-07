@@ -40,13 +40,14 @@ Deno.serve(async (req) => {
     });
   }
 
-  // Fetch user's discs with photos
+  // Fetch user's discs with photos and QR code
   const { data: discs, error: discsError } = await supabase
     .from('discs')
     .select(
       `
       *,
-      photos:disc_photos(id, storage_path, photo_uuid, created_at)
+      photos:disc_photos(id, storage_path, photo_uuid, created_at),
+      qr_code:qr_codes(id, short_code, status)
     `
     )
     .eq('owner_id', user.id)
