@@ -85,10 +85,21 @@ Deno.serve(async (req) => {
   // Get owner display name from profile (separate query to avoid FK issues)
   let ownerDisplayName = 'Anonymous';
   if (disc?.owner_id) {
-    const { data: profile } = await supabase.from('profiles').select('email').eq('id', disc.owner_id).single();
-    if (profile?.email) {
-      // Use part before @ as display name
-      ownerDisplayName = profile.email.split('@')[0];
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('email, username, full_name, display_preference')
+      .eq('id', disc.owner_id)
+      .single();
+    if (profile) {
+      // Use display preference to determine what to show
+      if (profile.display_preference === 'full_name' && profile.full_name) {
+        ownerDisplayName = profile.full_name;
+      } else if (profile.username) {
+        ownerDisplayName = profile.username;
+      } else if (profile.email) {
+        // Fallback to email username part
+        ownerDisplayName = profile.email.split('@')[0];
+      }
     }
   }
 
