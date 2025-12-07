@@ -6,13 +6,15 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
  *
  * Public endpoint (no auth required) that looks up a disc by its QR code.
  * Returns disc info for display to finders without exposing owner's private info.
+ * If authenticated user is the owner, returns is_owner: true so app can redirect.
  *
  * GET /lookup-qr-code?code=ABC123
  *
  * Returns:
  * - found: boolean
- * - disc: { name, photo_url, owner_display_name, reward_amount } (if found)
+ * - disc: { id, name, photo_url, owner_display_name, reward_amount } (if found)
  * - has_active_recovery: boolean (if found)
+ * - is_owner: boolean (if authenticated and owns the disc)
  */
 
 Deno.serve(async (req) => {
@@ -39,7 +41,21 @@ Deno.serve(async (req) => {
   // (bypasses RLS since this is a public lookup endpoint)
   const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
   const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+  const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
   const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+  // Check if user is authenticated (optional - for owner detection)
+  let currentUserId: string | null = null;
+  const authHeader = req.headers.get('Authorization');
+  if (authHeader) {
+    const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const {
+      data: { user },
+    } = await supabaseAuth.auth.getUser();
+    currentUserId = user?.id ?? null;
+  }
 
   // Look up the QR code
   const { data: qrCode, error: qrError } = await supabase
@@ -128,6 +144,9 @@ Deno.serve(async (req) => {
     photoUrl = urlData?.signedUrl || null;
   }
 
+  // Check if current user is the owner
+  const isOwner = currentUserId !== null && currentUserId === disc.owner_id;
+
   // Return disc info without sensitive owner data
   return new Response(
     JSON.stringify({
@@ -144,6 +163,7 @@ Deno.serve(async (req) => {
         photo_url: photoUrl,
       },
       has_active_recovery: !!activeRecovery,
+      is_owner: isOwner,
     }),
     {
       status: 200,
