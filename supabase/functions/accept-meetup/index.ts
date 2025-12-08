@@ -1,5 +1,6 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { sendPushNotification } from '../_shared/push-notifications.ts';
 
 /**
  * Accept Meetup Function
@@ -211,23 +212,36 @@ Deno.serve(async (req) => {
   const ownerName = ownerProfile?.display_name || 'The owner';
   const discName = discInfo?.name || 'the disc';
 
+  const notificationTitle = 'Meetup accepted!';
+  const notificationBodyText = `${ownerName} accepted your meetup proposal for ${discName}`;
+  const notificationData = {
+    recovery_event_id: proposal.recovery_event_id,
+    proposal_id: proposal.id,
+    disc_id: recoveryEvent.disc_id,
+  };
+
   // Notify the finder that the meetup was accepted
   try {
     await supabaseAdmin.from('notifications').insert({
       user_id: recoveryEvent.finder_id,
       type: 'meetup_accepted',
-      title: 'Meetup accepted!',
-      body: `${ownerName} accepted your meetup proposal for ${discName}`,
-      data: {
-        recovery_event_id: proposal.recovery_event_id,
-        proposal_id: proposal.id,
-        disc_id: recoveryEvent.disc_id,
-      },
+      title: notificationTitle,
+      body: notificationBodyText,
+      data: notificationData,
     });
   } catch (notificationError) {
     console.error('Failed to create notification:', notificationError);
     // Don't fail the request, the proposal was accepted successfully
   }
+
+  // Send push notification
+  await sendPushNotification({
+    userId: recoveryEvent.finder_id,
+    title: notificationTitle,
+    body: notificationBodyText,
+    data: notificationData,
+    supabaseAdmin,
+  });
 
   // Return the updated proposal
   return new Response(

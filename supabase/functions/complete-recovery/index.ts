@@ -1,5 +1,6 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { sendPushNotification } from '../_shared/push-notifications.ts';
 
 /**
  * Complete Recovery Function
@@ -171,22 +172,35 @@ Deno.serve(async (req) => {
   // Notify the other party that the recovery is complete
   const otherPartyId = isOwner ? recoveryEvent.finder_id : discOwner;
 
+  const notificationTitle = 'Disc recovered!';
+  const notificationBodyText = `${discName} has been marked as recovered by ${completerName}`;
+  const notificationData = {
+    recovery_event_id,
+    disc_id: recoveryEvent.disc_id,
+  };
+
   if (otherPartyId) {
     try {
       await supabaseAdmin.from('notifications').insert({
         user_id: otherPartyId,
         type: 'disc_recovered',
-        title: 'Disc recovered!',
-        body: `${discName} has been marked as recovered by ${completerName}`,
-        data: {
-          recovery_event_id,
-          disc_id: recoveryEvent.disc_id,
-        },
+        title: notificationTitle,
+        body: notificationBodyText,
+        data: notificationData,
       });
     } catch (notificationError) {
       console.error('Failed to create notification:', notificationError);
       // Don't fail the request, the recovery was completed successfully
     }
+
+    // Send push notification
+    await sendPushNotification({
+      userId: otherPartyId,
+      title: notificationTitle,
+      body: notificationBodyText,
+      data: notificationData,
+      supabaseAdmin,
+    });
   }
 
   // Return the updated recovery event

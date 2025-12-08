@@ -1,5 +1,6 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { sendPushNotification } from '../_shared/push-notifications.ts';
 
 /**
  * Decline Meetup Function
@@ -197,24 +198,37 @@ Deno.serve(async (req) => {
 
   const ownerName = ownerProfile?.display_name || 'The owner';
 
+  const notificationTitle = 'Meetup declined';
+  const notificationBodyText = `${ownerName} declined your meetup proposal for ${discName}${reason ? `. Reason: ${reason}` : ''}`;
+  const notificationData = {
+    recovery_event_id: proposal.recovery_event_id,
+    proposal_id: proposal.id,
+    disc_id: recoveryEvent.disc_id,
+    reason: reason || null,
+  };
+
   // Notify the finder that the meetup was declined
   try {
     await supabaseAdmin.from('notifications').insert({
       user_id: recoveryEvent.finder_id,
       type: 'meetup_declined',
-      title: 'Meetup declined',
-      body: `${ownerName} declined your meetup proposal for ${discName}${reason ? `. Reason: ${reason}` : ''}`,
-      data: {
-        recovery_event_id: proposal.recovery_event_id,
-        proposal_id: proposal.id,
-        disc_id: recoveryEvent.disc_id,
-        reason: reason || null,
-      },
+      title: notificationTitle,
+      body: notificationBodyText,
+      data: notificationData,
     });
   } catch (notificationError) {
     console.error('Failed to create notification:', notificationError);
     // Don't fail the request, the proposal was declined successfully
   }
+
+  // Send push notification
+  await sendPushNotification({
+    userId: recoveryEvent.finder_id,
+    title: notificationTitle,
+    body: notificationBodyText,
+    data: notificationData,
+    supabaseAdmin,
+  });
 
   // Return the updated proposal
   return new Response(
