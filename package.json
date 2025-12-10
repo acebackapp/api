@@ -24,7 +24,7 @@
   "license": "SEE LICENSE IN LICENSE",
   "devDependencies": {
     "@eslint/js": "^9.39.1",
-    "@types/node": "^22.10.1",
+    "@types/node": "^24.0.0",
     "@vitest/coverage-v8": "^2.1.8",
     "drizzle-kit": "^0.31.0",
     "eslint": "^9.39.1",
