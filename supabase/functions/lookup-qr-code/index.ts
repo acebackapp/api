@@ -15,6 +15,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
  * - disc: { id, name, photo_url, owner_display_name, reward_amount } (if found)
  * - has_active_recovery: boolean (if found)
  * - is_owner: boolean (if authenticated and owns the disc)
+ * - is_claimable: boolean (if disc has no owner and can be claimed)
  */
 
 Deno.serve(async (req) => {
@@ -99,8 +100,13 @@ Deno.serve(async (req) => {
     .single();
 
   // Get owner display name from profile (separate query to avoid FK issues)
+  // If disc has no owner, it's claimable (was abandoned)
   let ownerDisplayName = 'Anonymous';
-  if (disc?.owner_id) {
+  const isClaimable = disc?.owner_id === null;
+
+  if (isClaimable) {
+    ownerDisplayName = 'No Owner - Available to Claim';
+  } else if (disc?.owner_id) {
     const { data: profile } = await supabase
       .from('profiles')
       .select('email, username, full_name, display_preference')
@@ -164,6 +170,7 @@ Deno.serve(async (req) => {
       },
       has_active_recovery: !!activeRecovery,
       is_owner: isOwner,
+      is_claimable: isClaimable,
     }),
     {
       status: 200,
