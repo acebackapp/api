@@ -79,7 +79,7 @@ Deno.serve(async (req) => {
     `
     )
     .eq('finder_id', user.id)
-    .in('status', ['found', 'meetup_proposed', 'meetup_confirmed', 'dropped_off'])
+    .in('status', ['found', 'meetup_proposed', 'meetup_confirmed', 'dropped_off', 'abandoned'])
     .order('created_at', { ascending: false });
 
   if (recoveriesError) {
@@ -107,8 +107,11 @@ Deno.serve(async (req) => {
       } | null;
 
       // Get owner display name
+      // For abandoned discs, owner_id is null
       let ownerDisplayName = 'Anonymous';
-      if (disc?.owner_id) {
+      if (recovery.status === 'abandoned' || !disc?.owner_id) {
+        ownerDisplayName = 'No owner';
+      } else if (disc?.owner_id) {
         const { data: profile } = await supabaseAdmin
           .from('profiles')
           .select('username, full_name, display_preference, email')
