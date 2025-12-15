@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "description": "AceBack API - Database schema and backend services",
   "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
