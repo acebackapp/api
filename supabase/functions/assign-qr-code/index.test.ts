@@ -299,11 +299,7 @@ Deno.test('assign-qr-code: should successfully assign QR code to user', async ()
     assertEquals(data.qr_code.assigned_to, authData.user.id);
 
     // Verify in database
-    const { data: updatedQr } = await supabaseAdmin
-      .from('qr_codes')
-      .select('*')
-      .eq('id', qrCode.id)
-      .single();
+    const { data: updatedQr } = await supabaseAdmin.from('qr_codes').select('*').eq('id', qrCode.id).single();
 
     assertEquals(updatedQr?.status, 'assigned');
     assertEquals(updatedQr?.assigned_to, authData.user.id);

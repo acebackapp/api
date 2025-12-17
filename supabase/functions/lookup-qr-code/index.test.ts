@@ -37,7 +37,7 @@ Deno.test('lookup-qr-code: should return 400 when code parameter is missing', as
   assertEquals(data.error, 'Missing code parameter');
 });
 
-Deno.test('lookup-qr-code: should return found=false for non-existent QR code', async () => {
+Deno.test('lookup-qr-code: should return found=false and qr_exists=false for non-existent QR code', async () => {
   const response = await fetch(`${FUNCTION_URL}?code=NONEXISTENT123`, {
     method: 'GET',
     headers: {
@@ -48,16 +48,17 @@ Deno.test('lookup-qr-code: should return found=false for non-existent QR code', 
   assertEquals(response.status, 200);
   const data = await response.json();
   assertEquals(data.found, false);
+  assertEquals(data.qr_exists, false);
 });
 
-Deno.test('lookup-qr-code: should return found=false for unassigned QR code', async () => {
+Deno.test('lookup-qr-code: should return qr_status=generated for unclaimed QR code', async () => {
   const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-  // Create an unassigned QR code
-  const testCode = `TEST${Date.now()}`;
+  // Create an unclaimed QR code in generated status
+  const testCode = `GENERATED${Date.now()}`;
   const { data: qrCode, error: createError } = await supabaseAdmin
     .from('qr_codes')
-    .insert({ short_code: testCode, status: 'available' })
+    .insert({ short_code: testCode, status: 'generated' })
     .select()
     .single();
 
@@ -77,13 +78,150 @@ Deno.test('lookup-qr-code: should return found=false for unassigned QR code', as
     assertEquals(response.status, 200);
     const data = await response.json();
     assertEquals(data.found, false);
+    assertEquals(data.qr_exists, true);
+    assertEquals(data.qr_status, 'generated');
+    assertEquals(data.qr_code, testCode);
   } finally {
     // Cleanup
     await supabaseAdmin.from('qr_codes').delete().eq('id', qrCode.id);
   }
 });
 
-Deno.test('lookup-qr-code: should return disc info for assigned QR code', async () => {
+Deno.test('lookup-qr-code: should return qr_status=deactivated for deactivated QR code', async () => {
+  const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+  // Create a deactivated QR code
+  const testCode = `DEACTIVATED${Date.now()}`;
+  const { data: qrCode, error: createError } = await supabaseAdmin
+    .from('qr_codes')
+    .insert({ short_code: testCode, status: 'deactivated' })
+    .select()
+    .single();
+
+  if (createError) {
+    console.error('Setup failed:', createError);
+    throw createError;
+  }
+
+  try {
+    const response = await fetch(`${FUNCTION_URL}?code=${testCode}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    assertEquals(response.status, 200);
+    const data = await response.json();
+    assertEquals(data.found, false);
+    assertEquals(data.qr_exists, true);
+    assertEquals(data.qr_status, 'deactivated');
+  } finally {
+    // Cleanup
+    await supabaseAdmin.from('qr_codes').delete().eq('id', qrCode.id);
+  }
+});
+
+Deno.test('lookup-qr-code: should return qr_status=assigned for assigned but unlinked QR code', async () => {
+  const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // Sign up a test user
+  const { data: authData, error: signUpError } = await supabase.auth.signUp({
+    email: `test-${Date.now()}@example.com`,
+    password: 'testpassword123',
+  });
+
+  if (signUpError || !authData.user) {
+    throw signUpError;
+  }
+
+  // Create an assigned QR code (not linked to a disc)
+  const testCode = `ASSIGNED${Date.now()}`;
+  const { data: qrCode, error: createError } = await supabaseAdmin
+    .from('qr_codes')
+    .insert({ short_code: testCode, status: 'assigned', assigned_to: authData.user.id })
+    .select()
+    .single();
+
+  if (createError) {
+    console.error('Setup failed:', createError);
+    throw createError;
+  }
+
+  try {
+    const response = await fetch(`${FUNCTION_URL}?code=${testCode}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    assertEquals(response.status, 200);
+    const data = await response.json();
+    assertEquals(data.found, false);
+    assertEquals(data.qr_exists, true);
+    assertEquals(data.qr_status, 'assigned');
+    assertEquals(data.qr_code, testCode);
+    assertEquals(data.is_assignee, false); // No auth header sent
+  } finally {
+    // Cleanup
+    await supabaseAdmin.from('qr_codes').delete().eq('id', qrCode.id);
+    await supabaseAdmin.auth.admin.deleteUser(authData.user.id);
+  }
+});
+
+Deno.test('lookup-qr-code: should return is_assignee=true when user owns assigned QR code', async () => {
+  const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // Sign up a test user
+  const { data: authData, error: signUpError } = await supabase.auth.signUp({
+    email: `test-${Date.now()}@example.com`,
+    password: 'testpassword123',
+  });
+
+  if (signUpError || !authData.user || !authData.session) {
+    throw signUpError;
+  }
+
+  // Create an assigned QR code to this user
+  const testCode = `MYASSIGNED${Date.now()}`;
+  const { data: qrCode, error: createError } = await supabaseAdmin
+    .from('qr_codes')
+    .insert({ short_code: testCode, status: 'assigned', assigned_to: authData.user.id })
+    .select()
+    .single();
+
+  if (createError) {
+    console.error('Setup failed:', createError);
+    throw createError;
+  }
+
+  try {
+    // Lookup with auth header
+    const response = await fetch(`${FUNCTION_URL}?code=${testCode}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authData.session.access_token}`,
+      },
+    });
+
+    assertEquals(response.status, 200);
+    const data = await response.json();
+    assertEquals(data.found, false);
+    assertEquals(data.qr_exists, true);
+    assertEquals(data.qr_status, 'assigned');
+    assertEquals(data.is_assignee, true);
+  } finally {
+    // Cleanup
+    await supabaseAdmin.from('qr_codes').delete().eq('id', qrCode.id);
+    await supabaseAdmin.auth.admin.deleteUser(authData.user.id);
+  }
+});
+
+Deno.test('lookup-qr-code: should return disc info for active QR code', async () => {
   const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -99,11 +237,11 @@ Deno.test('lookup-qr-code: should return disc info for assigned QR code', async 
     throw signUpError;
   }
 
-  // Create QR code
+  // Create QR code with 'active' status (linked to a disc)
   const testCode = `TEST${Date.now()}`;
   const { data: qrCode, error: qrError } = await supabaseAdmin
     .from('qr_codes')
-    .insert({ short_code: testCode, status: 'assigned', assigned_to: authData.user.id })
+    .insert({ short_code: testCode, status: 'active', assigned_to: authData.user.id })
     .select()
     .single();
 
@@ -176,11 +314,11 @@ Deno.test('lookup-qr-code: should be case insensitive for code lookup', async ()
     throw signUpError;
   }
 
-  // Create QR code with uppercase
+  // Create QR code with uppercase and active status
   const testCode = `TESTCASE${Date.now()}`;
   const { data: qrCode, error: qrError } = await supabaseAdmin
     .from('qr_codes')
-    .insert({ short_code: testCode, status: 'assigned', assigned_to: authData.user.id })
+    .insert({ short_code: testCode, status: 'active', assigned_to: authData.user.id })
     .select()
     .single();
 
@@ -248,11 +386,11 @@ Deno.test('lookup-qr-code: should indicate has_active_recovery when recovery exi
     throw finderError;
   }
 
-  // Create QR code
+  // Create QR code with active status (linked to disc)
   const testCode = `TESTRECOV${Date.now()}`;
   const { data: qrCode, error: qrError } = await supabaseAdmin
     .from('qr_codes')
-    .insert({ short_code: testCode, status: 'assigned', assigned_to: ownerAuth.user.id })
+    .insert({ short_code: testCode, status: 'active', assigned_to: ownerAuth.user.id })
     .select()
     .single();
 
@@ -326,11 +464,11 @@ Deno.test('lookup-qr-code: should not expose owner private info', async () => {
     throw signUpError;
   }
 
-  // Create QR code
+  // Create QR code with active status
   const testCode = `TESTPRIV${Date.now()}`;
   const { data: qrCode, error: qrError } = await supabaseAdmin
     .from('qr_codes')
-    .insert({ short_code: testCode, status: 'assigned', assigned_to: authData.user.id })
+    .insert({ short_code: testCode, status: 'active', assigned_to: authData.user.id })
     .select()
     .single();
 
