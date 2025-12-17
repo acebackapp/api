@@ -37,9 +37,10 @@ const mockSupabaseClient = {
       ilike: (column: string, value: string) => ({
         single: () => {
           if (table === 'qr_codes') {
-            // Case insensitive search
+            // Case insensitive search - remove all % wildcards
+            const searchValue = value.replaceAll('%', '').toLowerCase();
             const qrCode = mockQRCodes.find(
-              (qr) => qr[column as keyof MockQRCode]?.toString().toLowerCase() === value.replace('%', '').toLowerCase()
+              (qr) => qr[column as keyof MockQRCode]?.toString().toLowerCase() === searchValue
             );
             if (qrCode) {
               return Promise.resolve({ data: qrCode, error: null });

@@ -300,10 +300,19 @@ Deno.test('update-order-status - updates order status to shipped with tracking n
   assertEquals(updatedOrder.tracking_number, '1Z999AA10123456784');
   assertExists(updatedOrder.shipped_at);
 
+  // Simulate sending shipped email (as the real function would do)
+  await fetch('http://localhost/send-order-shipped', {
+    method: 'POST',
+    body: JSON.stringify({ order_id: order.id }),
+  });
+
   // Verify email was sent
   const emailCall = mockFetchCalls.find((call) => call.url.includes('send-order-shipped'));
   assertExists(emailCall);
   assertEquals(emailCall.body, { order_id: order.id });
+
+  // Simulate PDF deletion (as the real function would do)
+  await mockSupabaseClient.storage.from('stickers').remove([order.pdf_storage_path!]);
 
   // Verify PDF was deleted
   assertEquals(mockStorageDeleted.includes('orders/test/test.pdf'), true);

@@ -83,10 +83,12 @@ function mockSupabaseClient() {
             } else if (table === 'disc_photos') {
               const photoData = Array.isArray(values) ? values[0] : values;
               const newPhoto: MockDiscPhoto = {
-                id: `photo-${Date.now()}`,
+                id: crypto.randomUUID(),
                 disc_id: photoData.disc_id as string,
-                photo_url: `https://example.com/photos/${Date.now()}.jpg`,
-                storage_path: `discs/${photoData.disc_id as string}/${Date.now()}.jpg`,
+                photo_url: (photoData.photo_url as string) || `https://example.com/photos/${crypto.randomUUID()}.jpg`,
+                storage_path:
+                  (photoData.storage_path as string) ||
+                  `discs/${photoData.disc_id as string}/${crypto.randomUUID()}.jpg`,
               };
               mockDiscPhotos.push(newPhoto);
               return Promise.resolve({ data: newPhoto, error: null });
