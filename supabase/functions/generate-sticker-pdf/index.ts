@@ -20,7 +20,7 @@ import QRCode from 'https://esm.sh/qrcode@1.5.3';
 // Sticker dimensions in points (72 points = 1 inch)
 const STICKER_WIDTH = 144; // 2 inches
 const STICKER_HEIGHT = 144; // 2 inches
-const QR_SIZE = 100; // QR code size in points
+const QR_SIZE = 85; // QR code size in points
 const MARGIN = 10;
 const PAGE_MARGIN = 36; // 0.5 inch margin
 const STICKERS_PER_ROW = 4;
@@ -31,7 +31,7 @@ const STICKERS_PER_COL = 5;
 // needs to be set up in print workflow
 
 // App URL for QR codes
-const APP_URL = 'https://ab.cd';
+const APP_URL = 'https://aceback.app/d';
 
 Deno.serve(async (req) => {
   // Only allow POST requests
@@ -188,7 +188,7 @@ Deno.serve(async (req) => {
         const text = 'AceBack';
         const textWidth = font.widthOfTextAtSize(text, textSize);
         const textX = x + (STICKER_WIDTH - textWidth) / 2;
-        const textY = y + MARGIN + 5;
+        const textY = y + MARGIN + 18;
 
         page.drawText(text, {
           x: textX,
@@ -198,9 +198,9 @@ Deno.serve(async (req) => {
           color: rgb(0, 0, 0),
         });
 
-        // Draw short code below brand name
-        const codeSize = 8;
-        const codeText = qrCode.short_code;
+        // Draw URL below brand name
+        const codeSize = 6;
+        const codeText = `aceback.app/d/${qrCode.short_code}`;
         const codeWidth = font.widthOfTextAtSize(codeText, codeSize);
         const codeX = x + (STICKER_WIDTH - codeWidth) / 2;
         const codeY = textY - 12;
