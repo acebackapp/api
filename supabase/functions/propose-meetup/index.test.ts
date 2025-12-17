@@ -420,6 +420,123 @@ Deno.test('propose-meetup: works without optional fields', async () => {
   }
 });
 
+Deno.test('propose-meetup: counter-proposal declines existing pending proposal', async () => {
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+  // Create owner
+  const { data: ownerAuth, error: ownerError } = await supabase.auth.signUp({
+    email: `owner-${Date.now()}@example.com`,
+    password: 'testpassword123',
+  });
+  if (ownerError || !ownerAuth.session || !ownerAuth.user) {
+    throw ownerError || new Error('No session');
+  }
+
+  // Create finder
+  const { data: finderAuth, error: finderError } = await supabase.auth.signUp({
+    email: `finder-${Date.now()}@example.com`,
+    password: 'testpassword123',
+  });
+  if (finderError || !finderAuth.session || !finderAuth.user) {
+    throw finderError || new Error('No session');
+  }
+
+  // Create disc
+  const { data: disc, error: discError } = await supabaseAdmin
+    .from('discs')
+    .insert({ owner_id: ownerAuth.user.id, name: 'Test Disc', mold: 'Destroyer' })
+    .select()
+    .single();
+  if (discError) throw discError;
+
+  // Create recovery event
+  const { data: recovery, error: recoveryError } = await supabaseAdmin
+    .from('recovery_events')
+    .insert({
+      disc_id: disc.id,
+      finder_id: finderAuth.user.id,
+      status: 'found',
+      found_at: new Date().toISOString(),
+    })
+    .select()
+    .single();
+  if (recoveryError) throw recoveryError;
+
+  let originalProposalId: string | null = null;
+  let counterProposalId: string | null = null;
+
+  try {
+    // Finder creates original proposal
+    const originalResponse = await fetch(FUNCTION_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${finderAuth.session.access_token}`,
+      },
+      body: JSON.stringify({
+        recovery_event_id: recovery.id,
+        location_name: 'Original Location',
+        proposed_datetime: new Date(Date.now() + 86400000).toISOString(),
+      }),
+    });
+
+    assertEquals(originalResponse.status, 201);
+    const originalData = await originalResponse.json();
+    originalProposalId = originalData.proposal.id;
+    assertEquals(originalData.proposal.status, 'pending');
+
+    // Owner creates counter-proposal
+    const counterResponse = await fetch(FUNCTION_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${ownerAuth.session.access_token}`,
+      },
+      body: JSON.stringify({
+        recovery_event_id: recovery.id,
+        location_name: 'Counter Location',
+        proposed_datetime: new Date(Date.now() + 172800000).toISOString(),
+        message: 'How about here instead?',
+      }),
+    });
+
+    assertEquals(counterResponse.status, 201);
+    const counterData = await counterResponse.json();
+    counterProposalId = counterData.proposal.id;
+    assertEquals(counterData.proposal.status, 'pending');
+    assertEquals(counterData.proposal.location_name, 'Counter Location');
+
+    // Verify original proposal was declined
+    const { data: declinedProposal } = await supabaseAdmin
+      .from('meetup_proposals')
+      .select('status')
+      .eq('id', originalProposalId)
+      .single();
+    assertEquals(declinedProposal?.status, 'declined');
+
+    // Verify counter proposal is pending
+    const { data: pendingProposal } = await supabaseAdmin
+      .from('meetup_proposals')
+      .select('status')
+      .eq('id', counterProposalId)
+      .single();
+    assertEquals(pendingProposal?.status, 'pending');
+  } finally {
+    if (counterProposalId) {
+      await supabaseAdmin.from('meetup_proposals').delete().eq('id', counterProposalId);
+    }
+    if (originalProposalId) {
+      await supabaseAdmin.from('meetup_proposals').delete().eq('id', originalProposalId);
+    }
+    await supabaseAdmin.from('notifications').delete().eq('user_id', finderAuth.user.id);
+    await supabaseAdmin.from('recovery_events').delete().eq('id', recovery.id);
+    await supabaseAdmin.from('discs').delete().eq('id', disc.id);
+    await supabaseAdmin.auth.admin.deleteUser(ownerAuth.user.id);
+    await supabaseAdmin.auth.admin.deleteUser(finderAuth.user.id);
+  }
+});
+
 Deno.test('propose-meetup: should return 400 for recovery that is already completed', async () => {
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
