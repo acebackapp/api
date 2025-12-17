@@ -39,6 +39,7 @@ let mockUser: MockUser | null = null;
 let mockDiscs: MockDisc[] = [];
 let mockRecoveryEvents: MockRecoveryEvent[] = [];
 let mockMeetupProposals: MockMeetupProposal[] = [];
+let mockIdCounter = 0;
 
 // Reset mocks before each test
 function resetMocks() {
@@ -46,6 +47,7 @@ function resetMocks() {
   mockDiscs = [];
   mockRecoveryEvents = [];
   mockMeetupProposals = [];
+  mockIdCounter = 0;
 }
 
 // Mock Supabase client
@@ -87,8 +89,9 @@ function mockSupabaseClient() {
           single: () => {
             if (table === 'recovery_events') {
               const v = values as Partial<MockRecoveryEvent>;
+              mockIdCounter++;
               const newEvent: MockRecoveryEvent = {
-                id: `recovery-${Date.now()}`,
+                id: `recovery-${mockIdCounter}`,
                 disc_id: v.disc_id || '',
                 finder_id: v.finder_id || '',
                 status: v.status || 'found',
@@ -100,8 +103,9 @@ function mockSupabaseClient() {
             }
             if (table === 'meetup_proposals') {
               const v = values as Partial<MockMeetupProposal>;
+              mockIdCounter++;
               const newProposal: MockMeetupProposal = {
-                id: `proposal-${Date.now()}`,
+                id: `proposal-${mockIdCounter}`,
                 recovery_event_id: v.recovery_event_id || '',
                 proposed_by: v.proposed_by || '',
                 location_name: v.location_name || '',
@@ -116,8 +120,9 @@ function mockSupabaseClient() {
             }
             if (table === 'discs') {
               const v = values as Partial<MockDisc>;
+              mockIdCounter++;
               const newDisc: MockDisc = {
-                id: `disc-${Date.now()}`,
+                id: `disc-${mockIdCounter}`,
                 owner_id: v.owner_id || '',
                 name: v.name || '',
                 mold: v.mold || '',
