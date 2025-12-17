@@ -37,5 +37,8 @@ yarn-error.log*
 coverage/
 .nyc_output/
 
+# Test outputs
+test-stickers.pdf
+
 # Drizzle
 drizzle/
