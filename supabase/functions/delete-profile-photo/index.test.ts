@@ -162,7 +162,10 @@ Deno.test('delete-profile-photo: deletes all extensions for user', async () => {
     }
 
     // Set avatar_url
-    await supabaseAdmin.from('profiles').update({ avatar_url: `${authData.user.id}.jpg` }).eq('id', authData.user.id);
+    await supabaseAdmin
+      .from('profiles')
+      .update({ avatar_url: `${authData.user.id}.jpg` })
+      .eq('id', authData.user.id);
 
     // Delete
     const response = await fetch(FUNCTION_URL, {
