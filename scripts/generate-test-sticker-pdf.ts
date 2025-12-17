@@ -15,14 +15,14 @@ import QRCode from 'https://esm.sh/qrcode@1.5.3';
 // Sticker dimensions in points (72 points = 1 inch)
 const STICKER_WIDTH = 144; // 2 inches
 const STICKER_HEIGHT = 144; // 2 inches
-const QR_SIZE = 100; // QR code size in points
+const QR_SIZE = 85; // QR code size in points
 const MARGIN = 10;
 const PAGE_MARGIN = 36; // 0.5 inch margin
 const STICKERS_PER_ROW = 4;
 const STICKERS_PER_COL = 5;
 
 // App URL for QR codes
-const APP_URL = 'https://ab.cd';
+const APP_URL = 'https://aceback.app/d';
 
 // Test short codes
 const TEST_CODES = [
@@ -65,7 +65,9 @@ async function generateTestPdf() {
   const numPages = Math.ceil(TEST_CODES.length / stickersPerPage);
 
   console.log(`📄 Creating ${numPages} page(s) with ${TEST_CODES.length} stickers`);
-  console.log(`📐 Sticker size: ${STICKER_WIDTH / 72}" x ${STICKER_HEIGHT / 72}" (${STICKER_WIDTH}pt x ${STICKER_HEIGHT}pt)`);
+  console.log(
+    `📐 Sticker size: ${STICKER_WIDTH / 72}" x ${STICKER_HEIGHT / 72}" (${STICKER_WIDTH}pt x ${STICKER_HEIGHT}pt)`
+  );
   console.log(`📐 Grid: ${STICKERS_PER_ROW} x ${STICKERS_PER_COL} per page\n`);
 
   for (let pageIdx = 0; pageIdx < numPages; pageIdx++) {
@@ -123,7 +125,7 @@ async function generateTestPdf() {
       const text = 'AceBack';
       const textWidth = font.widthOfTextAtSize(text, textSize);
       const textX = x + (STICKER_WIDTH - textWidth) / 2;
-      const textY = y + MARGIN + 5;
+      const textY = y + MARGIN + 18;
 
       page.drawText(text, {
         x: textX,
@@ -133,9 +135,9 @@ async function generateTestPdf() {
         color: rgb(0, 0, 0),
       });
 
-      // Draw short code below brand name
-      const codeSize = 8;
-      const codeText = shortCode;
+      // Draw URL below brand name
+      const codeSize = 6;
+      const codeText = `aceback.app/d/${shortCode}`;
       const codeWidth = font.widthOfTextAtSize(codeText, codeSize);
       const codeX = x + (STICKER_WIDTH - codeWidth) / 2;
       const codeY = textY - 12;

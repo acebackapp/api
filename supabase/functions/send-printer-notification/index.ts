@@ -18,7 +18,6 @@ import { sendEmail } from '../_shared/email.ts';
 
 // Printer email from environment
 const PRINTER_EMAIL = Deno.env.get('PRINTER_EMAIL') || 'printer@aceback.app';
-const APP_URL = Deno.env.get('APP_URL') || 'https://aceback.app';
 const API_URL = Deno.env.get('API_URL') || 'https://api.aceback.app';
 
 Deno.serve(async (req) => {
@@ -110,9 +109,7 @@ Deno.serve(async (req) => {
   }
 
   // Handle shipping address (could be array or object from Supabase)
-  const shippingAddress = Array.isArray(order.shipping_address)
-    ? order.shipping_address[0]
-    : order.shipping_address;
+  const shippingAddress = Array.isArray(order.shipping_address) ? order.shipping_address[0] : order.shipping_address;
 
   // Generate action URLs with printer token
   const markPrintedUrl = `${API_URL}/functions/v1/update-order-status?action=mark_printed&token=${order.printer_token}`;
