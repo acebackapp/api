@@ -24,7 +24,7 @@ jobs:
           deno-version: v2.x
 
       - name: Generate Test PDF
-        run: deno run --allow-write --allow-net scripts/generate-test-sticker-pdf.ts
+        run: deno run --allow-write --allow-net --no-lock scripts/generate-test-sticker-pdf.ts
 
       - name: Upload PDF Artifact
         uses: actions/upload-artifact@v4
