@@ -76,19 +76,63 @@ Deno.serve(async (req) => {
     .single();
 
   if (qrError || !qrCode) {
-    return new Response(JSON.stringify({ found: false }), {
+    return new Response(JSON.stringify({ found: false, qr_exists: false }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
-  // Check if QR code is assigned (has a disc)
-  if (qrCode.status !== 'assigned' && qrCode.status !== 'active') {
-    return new Response(JSON.stringify({ found: false }), {
-      status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+  // Check if QR code is deactivated
+  if (qrCode.status === 'deactivated') {
+    return new Response(
+      JSON.stringify({
+        found: false,
+        qr_exists: true,
+        qr_status: 'deactivated',
+      }),
+      {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
   }
+
+  // Check if QR code is unclaimed (generated status - no owner yet)
+  if (qrCode.status === 'generated') {
+    return new Response(
+      JSON.stringify({
+        found: false,
+        qr_exists: true,
+        qr_status: 'generated',
+        qr_code: qrCode.short_code,
+      }),
+      {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
+  }
+
+  // Check if QR code is assigned but not yet linked to a disc
+  if (qrCode.status === 'assigned') {
+    // Check if authenticated user is the assignee
+    const isAssignee = currentUserId !== null && currentUserId === qrCode.assigned_to;
+    return new Response(
+      JSON.stringify({
+        found: false,
+        qr_exists: true,
+        qr_status: 'assigned',
+        qr_code: qrCode.short_code,
+        is_assignee: isAssignee,
+      }),
+      {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
+  }
+
+  // QR code must be 'active' at this point - continue to look up the disc
 
   // Get the disc associated with this QR code
   const { data: disc, error: discError } = await supabase
