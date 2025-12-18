@@ -64,9 +64,7 @@ function mockSupabaseClient(userId?: string) {
           }),
           single: () => {
             if (table === 'shipping_addresses') {
-              const address = mockShippingAddresses.find(
-                (a) => a[column as keyof MockShippingAddress] === value
-              );
+              const address = mockShippingAddresses.find((a) => a[column as keyof MockShippingAddress] === value);
               if (address) {
                 return Promise.resolve({ data: address, error: null });
               }
@@ -106,9 +104,7 @@ function mockSupabaseClient(userId?: string) {
           select: (_columns?: string) => ({
             single: () => {
               if (table === 'shipping_addresses') {
-                const index = mockShippingAddresses.findIndex(
-                  (a) => a[column as keyof MockShippingAddress] === value
-                );
+                const index = mockShippingAddresses.findIndex((a) => a[column as keyof MockShippingAddress] === value);
                 if (index !== -1) {
                   mockShippingAddresses[index] = {
                     ...mockShippingAddresses[index],
@@ -323,11 +319,15 @@ Deno.test('save-default-address: should create new default address for user', as
     country: 'US',
   };
 
-  const { data: address } = await supabase.from('shipping_addresses').insert({
-    user_id: userId,
-    ...body,
-    is_default: true,
-  }).select('*').single();
+  const { data: address } = await supabase
+    .from('shipping_addresses')
+    .insert({
+      user_id: userId,
+      ...body,
+      is_default: true,
+    })
+    .select('*')
+    .single();
 
   assertExists(address);
 
@@ -381,7 +381,8 @@ Deno.test('save-default-address: should update existing address when address_id 
     city: 'Austin',
   };
 
-  const { data: updatedAddress } = await supabase.from('shipping_addresses')
+  const { data: updatedAddress } = await supabase
+    .from('shipping_addresses')
     .update(updateBody)
     .eq('id', 'address-1')
     .select('*')
@@ -424,10 +425,7 @@ Deno.test('save-default-address: should return 403 when address_id belongs to an
   assertExists(authData.user);
 
   // User 1 tries to get user 2's address
-  const { data: address } = await supabase.from('shipping_addresses')
-    .select('*')
-    .eq('id', 'address-1')
-    .single();
+  const { data: address } = await supabase.from('shipping_addresses').select('*').eq('id', 'address-1').single();
 
   assertExists(address);
 
@@ -467,12 +465,16 @@ Deno.test('save-default-address: should default country to US when not provided'
     // country not provided
   };
 
-  const { data: address } = await supabase.from('shipping_addresses').insert({
-    user_id: userId,
-    ...body,
-    country: body.country || 'US', // Default to US
-    is_default: true,
-  }).select('*').single();
+  const { data: address } = await supabase
+    .from('shipping_addresses')
+    .insert({
+      user_id: userId,
+      ...body,
+      country: body.country || 'US', // Default to US
+      is_default: true,
+    })
+    .select('*')
+    .single();
 
   assertExists(address);
   assertEquals(address.country, 'US');

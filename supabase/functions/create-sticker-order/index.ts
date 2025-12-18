@@ -136,9 +136,11 @@ Deno.serve(async (req) => {
   const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
   let addressId = shipping_address_id;
+  let addressForStripe: ShippingAddress | null = null;
 
   // If new address provided, create it
   if (shipping_address && !shipping_address_id) {
+    addressForStripe = shipping_address;
     const addressData: ShippingAddress & { user_id: string } = {
       user_id: user.id,
       name: shipping_address.name,
@@ -166,10 +168,10 @@ Deno.serve(async (req) => {
 
     addressId = newAddress.id;
   } else if (shipping_address_id) {
-    // Verify the address belongs to the user
+    // Verify the address belongs to the user and fetch details for Stripe
     const { data: existingAddress, error: addressError } = await supabaseAdmin
       .from('shipping_addresses')
-      .select('id')
+      .select('id, name, street_address, street_address_2, city, state, postal_code, country')
       .eq('id', shipping_address_id)
       .eq('user_id', user.id)
       .single();
@@ -180,6 +182,8 @@ Deno.serve(async (req) => {
         headers: { 'Content-Type': 'application/json' },
       });
     }
+
+    addressForStripe = existingAddress;
   }
 
   // Calculate total
@@ -223,6 +227,75 @@ Deno.serve(async (req) => {
     apiVersion: '2023-10-16',
   });
 
+  // Get or create Stripe Customer for billing address pre-fill
+  let stripeCustomerId: string | null = null;
+
+  // Check if user already has a Stripe customer ID
+  const { data: profile } = await supabaseAdmin
+    .from('profiles')
+    .select('stripe_customer_id')
+    .eq('id', user.id)
+    .single();
+
+  if (profile?.stripe_customer_id) {
+    stripeCustomerId = profile.stripe_customer_id;
+
+    // Update customer's address if we have one
+    if (addressForStripe) {
+      try {
+        await stripe.customers.update(profile.stripe_customer_id, {
+          name: addressForStripe.name,
+          address: {
+            line1: addressForStripe.street_address,
+            line2: addressForStripe.street_address_2 || undefined,
+            city: addressForStripe.city,
+            state: addressForStripe.state,
+            postal_code: addressForStripe.postal_code,
+            country: addressForStripe.country || 'US',
+          },
+        });
+      } catch (updateErr) {
+        console.error('Failed to update Stripe customer address:', updateErr);
+        // Continue anyway - old address is better than no pre-fill
+      }
+    }
+  } else if (addressForStripe) {
+    // Create new Stripe Customer with address for billing pre-fill
+    try {
+      const customer = await stripe.customers.create({
+        email: user.email,
+        name: addressForStripe.name,
+        address: {
+          line1: addressForStripe.street_address,
+          line2: addressForStripe.street_address_2 || undefined,
+          city: addressForStripe.city,
+          state: addressForStripe.state,
+          postal_code: addressForStripe.postal_code,
+          country: addressForStripe.country || 'US',
+        },
+        metadata: {
+          user_id: user.id,
+        },
+      });
+
+      stripeCustomerId = customer.id;
+
+      // Save customer ID to profile for future orders
+      const { error: profileUpdateError } = await supabaseAdmin
+        .from('profiles')
+        .update({ stripe_customer_id: customer.id })
+        .eq('id', user.id);
+
+      if (profileUpdateError) {
+        console.error('Failed to save Stripe customer ID to profile:', profileUpdateError);
+        // Continue anyway - checkout will still work
+      }
+    } catch (customerErr) {
+      console.error('Failed to create Stripe customer:', customerErr);
+      // Continue without customer - will fall back to customer_email
+    }
+  }
+
   // Get app URLs from environment
   const appUrl = Deno.env.get('APP_URL') || 'https://aceback.app';
 
@@ -231,8 +304,8 @@ Deno.serve(async (req) => {
   const cancelUrl = `${appUrl}/checkout-cancel?order_id=${order.id}`;
 
   try {
-    // Create Stripe Checkout session
-    const session = await stripe.checkout.sessions.create({
+    // Build Stripe checkout session options
+    const checkoutOptions: Stripe.Checkout.SessionCreateParams = {
       payment_method_types: ['card'],
       line_items: [
         {
@@ -254,8 +327,35 @@ Deno.serve(async (req) => {
         order_id: order.id,
         order_number: order.order_number,
       },
-      customer_email: user.email,
-    });
+    };
+
+    // Use Stripe Customer if available (pre-fills billing address)
+    // Otherwise fall back to customer_email
+    if (stripeCustomerId) {
+      checkoutOptions.customer = stripeCustomerId;
+    } else {
+      checkoutOptions.customer_email = user.email;
+    }
+
+    // Add shipping address to payment intent for fulfillment tracking
+    if (addressForStripe) {
+      checkoutOptions.payment_intent_data = {
+        shipping: {
+          name: addressForStripe.name,
+          address: {
+            line1: addressForStripe.street_address,
+            line2: addressForStripe.street_address_2 || undefined,
+            city: addressForStripe.city,
+            state: addressForStripe.state,
+            postal_code: addressForStripe.postal_code,
+            country: addressForStripe.country || 'US',
+          },
+        },
+      };
+    }
+
+    // Create Stripe Checkout session
+    const session = await stripe.checkout.sessions.create(checkoutOptions);
 
     // Update order with Stripe session ID
     const { error: updateError } = await supabaseAdmin
