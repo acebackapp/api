@@ -65,9 +65,7 @@ function mockSupabaseClient(userId?: string) {
           }),
           single: () => {
             if (table === 'shipping_addresses') {
-              const address = mockShippingAddresses.find(
-                (a) => a[column as keyof MockShippingAddress] === value
-              );
+              const address = mockShippingAddresses.find((a) => a[column as keyof MockShippingAddress] === value);
               if (address) {
                 return Promise.resolve({ data: address, error: null });
               }
