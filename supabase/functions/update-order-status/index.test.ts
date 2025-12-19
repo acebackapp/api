@@ -79,7 +79,7 @@ function resetMocks() {
 }
 
 // Constants from the function
-const WEB_APP_URL = 'https://aceback.app';
+const WEB_APP_URL = 'https://discrapp.com';
 const VALID_STATUSES = ['processing', 'printed', 'shipped', 'delivered'];
 // Note: shipped is allowed from paid/processing/printed since shipping implies printing is done
 const STATUS_TRANSITIONS: Record<string, string[]> = {

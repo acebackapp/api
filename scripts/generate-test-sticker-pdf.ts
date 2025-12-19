@@ -38,7 +38,7 @@ const STICKERS_PER_ROW = 4;
 const STICKERS_PER_COL = 5;
 
 // App URL for QR codes
-const APP_URL = 'https://aceback.app/d';
+const APP_URL = 'https://discrapp.com/d';
 
 // Generate random short codes using the same algorithm as production
 // Mixed-case alphabet excluding ambiguous characters (0, O, o, 1, l, I, i)
@@ -131,10 +131,10 @@ async function generateTestPdf() {
         height: QR_SIZE,
       });
 
-      // Draw "AceBack" text below QR code
+      // Draw "Discr" text below QR code
       // TODO: Replace with logo image when available
       const textSize = 14;
-      const text = 'AceBack';
+      const text = 'Discr';
       const textWidth = font.widthOfTextAtSize(text, textSize);
       const textX = x + (STICKER_WIDTH - textWidth) / 2;
       const textY = y + MARGIN + 18;
@@ -149,7 +149,7 @@ async function generateTestPdf() {
 
       // Draw URL below brand name
       const codeSize = 6;
-      const codeText = `aceback.app/d/${shortCode}`;
+      const codeText = `discrapp.com/d/${shortCode}`;
       const codeWidth = font.widthOfTextAtSize(codeText, codeSize);
       const codeX = x + (STICKER_WIDTH - codeWidth) / 2;
       const codeY = textY - 12;
@@ -178,8 +178,8 @@ async function generateTestPdf() {
   // Add metadata
   pdfDoc.setTitle('Test Sticker Sheet');
   pdfDoc.setSubject(`Test stickers - ${TEST_CODES.length} stickers`);
-  pdfDoc.setCreator('AceBack');
-  pdfDoc.setProducer('AceBack Sticker Generator (Test)');
+  pdfDoc.setCreator('Discr');
+  pdfDoc.setProducer('Discr Sticker Generator (Test)');
 
   // Save PDF
   const pdfBytes = await pdfDoc.save();
@@ -191,7 +191,7 @@ async function generateTestPdf() {
   console.log(`   File size: ${(pdfBytes.length / 1024).toFixed(1)} KB`);
   console.log(`\n📝 Notes:`);
   console.log(`   - Magenta lines are PerfCutContour cut marks`);
-  console.log(`   - "AceBack" text is placeholder for logo`);
+  console.log(`   - "Discr" text is placeholder for logo`);
   console.log(`   - QR codes link to ${APP_URL}/{code}`);
 }
 

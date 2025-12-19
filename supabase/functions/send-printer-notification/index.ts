@@ -17,7 +17,7 @@ import { sendEmail } from '../_shared/email.ts';
  */
 
 // Printer email from environment
-const PRINTER_EMAIL = Deno.env.get('PRINTER_EMAIL') || 'printer@aceback.app';
+const PRINTER_EMAIL = Deno.env.get('PRINTER_EMAIL') || 'printer@discrapp.com';
 // Use Supabase URL for edge function links (custom domain can be added later)
 const API_URL = Deno.env.get('SUPABASE_URL') || 'https://xhaogdigrsiwxdjmjzgx.supabase.co';
 
@@ -115,7 +115,7 @@ Deno.serve(async (req) => {
   // Generate action URLs with printer token
   const markPrintedUrl = `${API_URL}/functions/v1/update-order-status?action=mark_printed&token=${order.printer_token}`;
   // Ship order goes to web form (requires tracking number input)
-  const markShippedUrl = `https://aceback.app/ship-order?token=${order.printer_token}`;
+  const markShippedUrl = `https://discrapp.com/ship-order?token=${order.printer_token}`;
 
   // Format shipping address
   const addressLines = [
@@ -172,7 +172,7 @@ Deno.serve(async (req) => {
       </p>
 
       <p style="margin-top: 30px; font-size: 12px; color: #666;">
-        This email was sent automatically by AceBack. Do not reply to this email.
+        This email was sent automatically by Discr. Do not reply to this email.
       </p>
     </div>
   </div>
@@ -196,7 +196,7 @@ Actions:
 - Mark as Printed: ${markPrintedUrl}
 - Mark as Shipped: ${markShippedUrl}
 
-This email was sent automatically by AceBack.
+This email was sent automatically by Discr.
 `;
 
   // Send email

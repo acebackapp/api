@@ -236,7 +236,7 @@ Deno.test('send-order-confirmation - sends email for valid order', async () => {
     subject: `Order Confirmed: ${order.order_number}`,
     html: '<html>test</html>',
     text: 'test',
-    replyTo: 'support@aceback.app',
+    replyTo: 'support@discrapp.com',
   });
 
   assertEquals(emailResult.success, true);
@@ -246,7 +246,7 @@ Deno.test('send-order-confirmation - sends email for valid order', async () => {
   assertExists(lastEmailSent);
   assertEquals(lastEmailSent.to, 'test@example.com');
   assertEquals(lastEmailSent.subject, 'Order Confirmed: AB-2024-001');
-  assertEquals(lastEmailSent.replyTo, 'support@aceback.app');
+  assertEquals(lastEmailSent.replyTo, 'support@discrapp.com');
 });
 
 Deno.test('send-order-confirmation - email contains order details', async () => {
@@ -304,7 +304,7 @@ Deno.test('send-order-confirmation - returns success with message_id', async () 
     subject: 'Order Confirmed: AB-2024-001',
     html: '<html>test</html>',
     text: 'test',
-    replyTo: 'support@aceback.app',
+    replyTo: 'support@discrapp.com',
   });
 
   if (emailResult.success) {

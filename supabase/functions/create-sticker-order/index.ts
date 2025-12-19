@@ -297,7 +297,7 @@ Deno.serve(async (req) => {
   }
 
   // Get app URLs from environment
-  const appUrl = Deno.env.get('APP_URL') || 'https://aceback.app';
+  const appUrl = Deno.env.get('APP_URL') || 'https://discrapp.com';
 
   // For mobile, use a simple success page that closes the browser
   const successUrl = `${appUrl}/checkout-success?order_id=${order.id}`;
@@ -312,7 +312,7 @@ Deno.serve(async (req) => {
           price_data: {
             currency: 'usd',
             product_data: {
-              name: 'AceBack QR Code Stickers',
+              name: 'Discr QR Code Stickers',
               description: `Pack of ${quantity} QR code sticker${quantity > 1 ? 's' : ''}`,
             },
             unit_amount: UNIT_PRICE_CENTS,

@@ -209,7 +209,7 @@ Deno.serve(async (req) => {
   const feeAmountCents = calculateStripeFee(rewardAmountCents);
   const totalAmountCents = rewardAmountCents + feeAmountCents;
 
-  const appUrl = Deno.env.get('APP_URL') || 'https://aceback.app';
+  const appUrl = Deno.env.get('APP_URL') || 'https://discrapp.com';
   const successUrl = `${appUrl}/reward-success?recovery_id=${recovery_event_id}`;
   const cancelUrl = `${appUrl}/reward-cancel?recovery_id=${recovery_event_id}`;
 

@@ -1,7 +1,7 @@
 {
-  "name": "@aceback/api",
+  "name": "@discr/api",
   "version": "0.0.0",
-  "description": "AceBack API - Database schema and backend services",
+  "description": "Discr API - Database schema and backend services",
   "type": "module",
   "engines": {
     "node": ">=22"
@@ -18,12 +18,12 @@
     "db:studio": "drizzle-kit studio"
   },
   "keywords": [
-    "aceback",
+    "discr",
     "api",
     "drizzle",
     "supabase"
   ],
-  "author": "AceBack Team",
+  "author": "Discr Team",
   "license": "SEE LICENSE IN LICENSE",
   "devDependencies": {
     "@eslint/js": "^9.39.1",

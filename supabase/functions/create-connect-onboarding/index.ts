@@ -140,7 +140,7 @@ Deno.serve(async (req) => {
   }
 
   // Generate onboarding link
-  const appUrl = Deno.env.get('APP_URL') || 'https://aceback.app';
+  const appUrl = Deno.env.get('APP_URL') || 'https://discrapp.com';
 
   try {
     const accountLink = await stripe.accountLinks.create({

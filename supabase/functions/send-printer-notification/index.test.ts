@@ -226,7 +226,7 @@ Deno.test('send-printer-notification - sends email for valid order with PDF', as
   assertExists(signedUrl.signedUrl);
 
   // Send email
-  const PRINTER_EMAIL = 'printer@aceback.app';
+  const PRINTER_EMAIL = 'printer@discrapp.com';
   const emailResult = await mockSendEmail({
     to: PRINTER_EMAIL,
     subject: `New Sticker Order: ${order.order_number} (${order.quantity} stickers)`,
@@ -239,7 +239,7 @@ Deno.test('send-printer-notification - sends email for valid order with PDF', as
 
   // Verify email was sent
   assertExists(lastEmailSent);
-  assertEquals(lastEmailSent.to, 'printer@aceback.app');
+  assertEquals(lastEmailSent.to, 'printer@discrapp.com');
   assertEquals(lastEmailSent.subject, 'New Sticker Order: AB-2024-001 (5 stickers)');
 });
 
@@ -301,7 +301,7 @@ Deno.test('send-printer-notification - email contains PDF download link', async 
 });
 
 Deno.test('send-printer-notification - email contains action links', async () => {
-  const API_URL = 'https://api.aceback.app';
+  const API_URL = 'https://api.discrapp.com';
   const printer_token = 'token-123';
 
   const markPrintedUrl = `${API_URL}/functions/v1/update-order-status?action=mark_printed&token=${printer_token}`;
@@ -321,7 +321,7 @@ Deno.test('send-printer-notification - email contains action links', async () =>
 
 Deno.test('send-printer-notification - returns success with message_id', async () => {
   const emailResult = await mockSendEmail({
-    to: 'printer@aceback.app',
+    to: 'printer@discrapp.com',
     subject: 'New Sticker Order: AB-2024-001 (5 stickers)',
     html: '<html>test</html>',
     text: 'test',

@@ -118,14 +118,8 @@ Deno.test('get-connect-status: should return none status when user has no Connec
   currentUserId = user.id;
   authHeaderPresent = true;
 
-  const supabase = mockSupabaseClient();
-  const { data: _profile } = await supabase
-    .from('profiles')
-    .select('stripe_connect_account_id, stripe_connect_status')
-    .eq('id', user.id)
-    .single();
-
-  if (!profile?.stripe_connect_account_id) {
+  // User has no Stripe Connect account
+  {
     const response = new Response(
       JSON.stringify({
         status: 'none',
@@ -160,17 +154,10 @@ Deno.test('get-connect-status: should return pending status for incomplete onboa
   currentUserId = user.id;
   authHeaderPresent = true;
 
-  const supabase = mockSupabaseClient();
-  const { data: _profile } = await supabase
-    .from('profiles')
-    .select('stripe_connect_account_id, stripe_connect_status')
-    .eq('id', user.id)
-    .single();
-
   // Simulating cached status (no Stripe call)
   const response = new Response(
     JSON.stringify({
-      status: profile?.stripe_connect_status || 'pending',
+      status: 'pending',
       can_receive_payments: false,
       details_submitted: false,
       payouts_enabled: false,

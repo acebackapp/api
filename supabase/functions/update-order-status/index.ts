@@ -40,7 +40,7 @@ const STATUS_TRANSITIONS: Record<string, string[]> = {
   cancelled: [], // Terminal state
 };
 
-const WEB_APP_URL = 'https://aceback.app';
+const WEB_APP_URL = 'https://discrapp.com';
 
 // Helper to return error response (redirect for GET, JSON for POST)
 function errorResponse(error: string, statusCode: number, isGet: boolean): Response {

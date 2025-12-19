@@ -198,7 +198,7 @@ Deno.test('send-order-shipped - sends email with tracking info', async () => {
     subject: `Your Order Has Shipped: ${order.order_number}`,
     html: '<html>test</html>',
     text: 'test',
-    replyTo: 'support@aceback.app',
+    replyTo: 'support@discrapp.com',
   });
 
   assertExists(lastEmailSent);
