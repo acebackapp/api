@@ -134,7 +134,7 @@ jobs:
             - Sticker size: 2" x 2"
             - QR code size: 85pt
             - Grid: 4 x 5 per page
-            - URL format: \`aceback.app/d/{code}\`
+            - URL format: \`discrapp.com/d/{code}\`
 
             ---
             *Generated automatically when generate-sticker-pdf files change.*`;

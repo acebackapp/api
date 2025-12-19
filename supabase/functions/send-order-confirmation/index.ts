@@ -153,11 +153,11 @@ Deno.serve(async (req) => {
         <li>Once received, scan a sticker and link it to your disc in the app</li>
       </ol>
 
-      <p>You can view your order status anytime in the AceBack app.</p>
+      <p>You can view your order status anytime in the Discr app.</p>
 
       <div class="footer">
-        <p>If you have any questions, reply to this email or contact us at support@aceback.app</p>
-        <p>AceBack - Never lose a disc again!</p>
+        <p>If you have any questions, reply to this email or contact us at support@discrapp.com</p>
+        <p>Discr - Never lose a disc again!</p>
       </div>
     </div>
   </div>
@@ -186,11 +186,11 @@ What's Next?
 2. You'll receive a shipping notification when they're on their way
 3. Once received, scan a sticker and link it to your disc in the app
 
-You can view your order status anytime in the AceBack app.
+You can view your order status anytime in the Discr app.
 
-If you have any questions, reply to this email or contact us at support@aceback.app
+If you have any questions, reply to this email or contact us at support@discrapp.com
 
-AceBack - Never lose a disc again!
+Discr - Never lose a disc again!
 `;
 
   // Send email
@@ -199,7 +199,7 @@ AceBack - Never lose a disc again!
     subject: `Order Confirmed: ${order.order_number}`,
     html: emailHtml,
     text: emailText,
-    replyTo: 'support@aceback.app',
+    replyTo: 'support@discrapp.com',
   });
 
   if (!emailResult.success) {

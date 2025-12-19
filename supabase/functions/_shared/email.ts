@@ -19,7 +19,7 @@ interface SendEmailResult {
   error?: string;
 }
 
-const DEFAULT_FROM = 'AceBack <noreply@aceback.app>';
+const DEFAULT_FROM = 'Discr <noreply@discrapp.com>';
 
 export async function sendEmail(options: SendEmailOptions): Promise<SendEmailResult> {
   const resendApiKey = Deno.env.get('RESEND_API_KEY');

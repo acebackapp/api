@@ -32,7 +32,7 @@ const STICKERS_PER_COL = 5; // 25 stickers per page (was 20)
 // needs to be set up in print workflow
 
 // App URL for QR codes
-const APP_URL = 'https://aceback.app/d';
+const APP_URL = 'https://discrapp.com/d';
 
 Deno.serve(async (req) => {
   // Only allow POST requests
@@ -203,7 +203,7 @@ Deno.serve(async (req) => {
 
         // Draw URL below QR code
         const codeSize = 7;
-        const codeText = `aceback.app/d/${qrCode.short_code}`;
+        const codeText = `discrapp.com/d/${qrCode.short_code}`;
         const codeWidth = font.widthOfTextAtSize(codeText, codeSize);
         const codeX = x + (STICKER_WIDTH - codeWidth) / 2;
         const codeY = qrY - 10; // 10pt below QR code
@@ -235,8 +235,8 @@ Deno.serve(async (req) => {
     // Add metadata
     pdfDoc.setTitle(`Sticker Order ${order.order_number}`);
     pdfDoc.setSubject(`QR Code Stickers - ${qrCodes.length} stickers`);
-    pdfDoc.setCreator('AceBack');
-    pdfDoc.setProducer('AceBack Sticker Generator');
+    pdfDoc.setCreator('Discr');
+    pdfDoc.setProducer('Discr Sticker Generator');
 
     // Save PDF
     const pdfBytes = await pdfDoc.save();

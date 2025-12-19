@@ -297,7 +297,7 @@ Deno.test('create-sticker-order - creates order and returns checkout URL', async
         price_data: {
           currency: 'usd',
           product_data: {
-            name: 'AceBack QR Code Stickers',
+            name: 'Discr QR Code Stickers',
             description: `Pack of ${quantity} QR code stickers`,
           },
           unit_amount: UNIT_PRICE_CENTS,

@@ -201,14 +201,14 @@ Deno.serve(async (req) => {
       <h3>What's Next?</h3>
       <ol>
         <li>Track your package using the link above</li>
-        <li>Once your stickers arrive, open the AceBack app</li>
+        <li>Once your stickers arrive, open the Discr app</li>
         <li>Scan a sticker to link it to your disc</li>
         <li>Stick the QR code on your disc and you're protected!</li>
       </ol>
 
       <div class="footer">
-        <p>If you have any questions, reply to this email or contact us at support@aceback.app</p>
-        <p>AceBack - Never lose a disc again!</p>
+        <p>If you have any questions, reply to this email or contact us at support@discrapp.com</p>
+        <p>Discr - Never lose a disc again!</p>
       </div>
     </div>
   </div>
@@ -236,13 +236,13 @@ ${addressLines.join('\n')}
 
 What's Next?
 1. Track your package using the link above
-2. Once your stickers arrive, open the AceBack app
+2. Once your stickers arrive, open the Discr app
 3. Scan a sticker to link it to your disc
 4. Stick the QR code on your disc and you're protected!
 
-If you have any questions, reply to this email or contact us at support@aceback.app
+If you have any questions, reply to this email or contact us at support@discrapp.com
 
-AceBack - Never lose a disc again!
+Discr - Never lose a disc again!
 `;
 
   // Send email
@@ -251,7 +251,7 @@ AceBack - Never lose a disc again!
     subject: `Your Order Has Shipped: ${order.order_number}`,
     html: emailHtml,
     text: emailText,
-    replyTo: 'support@aceback.app',
+    replyTo: 'support@discrapp.com',
   });
 
   if (!emailResult.success) {

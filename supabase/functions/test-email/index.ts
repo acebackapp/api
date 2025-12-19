@@ -35,7 +35,7 @@ Deno.serve(async (req) => {
       <h1>✅ Email Test Successful!</h1>
     </div>
     <div style="padding: 20px;">
-      <p>This is a test email from AceBack API.</p>
+      <p>This is a test email from Discr API.</p>
       <p>If you received this email, your Resend API key and PRINTER_EMAIL are configured correctly!</p>
       <p><strong>Configuration verified:</strong></p>
       <ul>
@@ -52,7 +52,7 @@ Deno.serve(async (req) => {
   const emailText = `
 Email Test Successful!
 
-This is a test email from AceBack API.
+This is a test email from Discr API.
 If you received this email, your Resend API key and PRINTER_EMAIL are configured correctly!
 
 Configuration verified:
@@ -63,7 +63,7 @@ Configuration verified:
 
   const result = await sendEmail({
     to: PRINTER_EMAIL,
-    subject: '✅ AceBack Email Test',
+    subject: '✅ Discr Email Test',
     html: emailHtml,
     text: emailText,
   });
