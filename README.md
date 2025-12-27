@@ -6,8 +6,6 @@
 ![GitHub repo size](https://img.shields.io/github/repo-size/discrapp/api)
 ![GitHub License](https://img.shields.io/github/license/discrapp/api)
 
-[![codecov](https://codecov.io/gh/discrapp/api/branch/main/graph/badge.svg)](https://codecov.io/gh/discrapp/api)
-
 ## Introduction
 
 This repository contains Supabase functions, database migrations, and API
