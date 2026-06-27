@@ -33,7 +33,7 @@ jobs:
         run: pdftoppm -png -r 150 -singlefile test-stickers.pdf test-stickers-preview
 
       - name: Upload PDF Artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: test-stickers
           path: test-stickers.pdf
