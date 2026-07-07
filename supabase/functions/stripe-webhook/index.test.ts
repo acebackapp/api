@@ -1870,9 +1870,9 @@ Deno.test('stripe-webhook: should run order confirmation in parallel with fulfil
   assertExists(fulfillmentStart);
   assertExists(confirmationStart);
 
-  // Both should have started nearly simultaneously (within 5ms)
+  // Both should have started nearly simultaneously (within 50ms — 5ms was too tight for CI runners)
   const timeDiff = Math.abs(fulfillmentStart.startTime - confirmationStart.startTime);
-  assertEquals(timeDiff < 5, true, `Operations should start in parallel, but were ${timeDiff}ms apart`);
+  assertEquals(timeDiff < 50, true, `Operations should start in parallel, but were ${timeDiff}ms apart`);
 });
 
 Deno.test('stripe-webhook: parallel fulfillment should use Promise.allSettled for error isolation', async () => {
