@@ -1,5 +1,5 @@
-import { recoveryEvents, RecoveryEventStatus } from './recovery-events';
 import { getTableColumns, getTableName } from 'drizzle-orm';
+import { RecoveryEventStatus, recoveryEvents } from './recovery-events';
 
 describe('recovery_events schema', () => {
   it('should have the correct table name', () => {

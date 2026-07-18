@@ -1,5 +1,5 @@
-import { discs, validateFlightNumbers, type FlightNumbers } from './discs';
 import { getTableColumns, getTableName } from 'drizzle-orm';
+import { discs, type FlightNumbers, validateFlightNumbers } from './discs';
 
 describe('discs schema', () => {
   it('should have the correct table name', () => {

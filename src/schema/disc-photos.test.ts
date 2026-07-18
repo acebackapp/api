@@ -1,5 +1,5 @@
-import { discPhotos } from './disc-photos';
 import { getTableColumns, getTableName } from 'drizzle-orm';
+import { discPhotos } from './disc-photos';
 
 describe('disc_photos schema', () => {
   it('should have the correct table name', () => {

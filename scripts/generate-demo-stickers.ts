@@ -134,7 +134,9 @@ async function main() {
     codesAreNew = true;
 
     console.log('📝 Generated new short codes:');
-    shortCodes.forEach((code, i) => console.log(`   ${i + 1}. ${code}`));
+    shortCodes.forEach((code, i) => {
+      console.log(`   ${i + 1}. ${code}`);
+    });
 
     // Check for collisions
     const { data: existingCodes } = await supabase.from('qr_codes').select('short_code').in('short_code', shortCodes);
@@ -166,7 +168,9 @@ async function main() {
   }
 
   console.log('\n📝 Using codes:');
-  shortCodes.forEach((code, i) => console.log(`   ${i + 1}. ${code}`));
+  shortCodes.forEach((code, i) => {
+    console.log(`   ${i + 1}. ${code}`);
+  });
 
   // Create PDF document
   console.log('\n📄 Generating PDF...');
@@ -299,7 +303,9 @@ async function main() {
   console.log(`\n✅ PDF generated: ${outputPath}`);
   console.log(`   File size: ${(pdfBytes.length / 1024).toFixed(1)} KB`);
   console.log(`\n🔗 QR codes link to:`);
-  shortCodes.forEach((code) => console.log(`   ${APP_URL}/${code}`));
+  shortCodes.forEach((code) => {
+    console.log(`   ${APP_URL}/${code}`);
+  });
   console.log(`\n📱 Scan any QR code to test!`);
 
   if (!codesAreNew) {

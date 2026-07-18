@@ -1,5 +1,5 @@
-import { profiles } from './profiles';
 import { getTableColumns, getTableName } from 'drizzle-orm';
+import { profiles } from './profiles';
 
 describe('profiles schema', () => {
   it('should have the correct table name', () => {

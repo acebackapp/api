@@ -1,5 +1,5 @@
-import { pgTable, text, timestamp, uuid, pgEnum } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
+import { pgEnum, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { profiles } from './profiles';
 
 export const qrCodeStatusEnum = pgEnum('qr_code_status', ['generated', 'assigned', 'active', 'deactivated']);
@@ -12,10 +12,7 @@ export const QrCodeStatus = {
 } as const;
 
 export const qrCodes = pgTable('qr_codes', {
-  id: uuid('id')
-    .primaryKey()
-    .default(sql`gen_random_uuid()`)
-    .notNull(),
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`).notNull(),
   short_code: text('short_code').notNull().unique(),
   status: qrCodeStatusEnum('status').notNull().default('generated'),
   assigned_to: uuid('assigned_to').references(/* c8 ignore next */ () => profiles.id, {

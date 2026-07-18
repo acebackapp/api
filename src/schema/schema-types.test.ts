@@ -1,9 +1,9 @@
-import type { Profile, NewProfile } from './profiles';
-import type { QrCode, NewQrCode } from './qr-codes';
-import type { Disc, NewDisc } from './discs';
 import type { DiscPhoto, NewDiscPhoto } from './disc-photos';
-import type { RecoveryEvent, NewRecoveryEvent } from './recovery-events';
+import type { Disc, NewDisc } from './discs';
 import type { MeetupProposal, NewMeetupProposal } from './meetup-proposals';
+import type { NewProfile, Profile } from './profiles';
+import type { NewQrCode, QrCode } from './qr-codes';
+import type { NewRecoveryEvent, RecoveryEvent } from './recovery-events';
 
 describe('schema type inference', () => {
   it('should infer Profile types correctly', () => {

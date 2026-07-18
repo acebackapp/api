@@ -1,7 +1,7 @@
-import { pgTable, text, timestamp, uuid, pgEnum, jsonb } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
-import { recoveryEvents } from './recovery-events';
+import { jsonb, pgEnum, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { profiles } from './profiles';
+import { recoveryEvents } from './recovery-events';
 
 export interface Coordinates {
   latitude: number;
@@ -23,10 +23,7 @@ export const MeetupProposalStatus = {
 } as const;
 
 export const meetupProposals = pgTable('meetup_proposals', {
-  id: uuid('id')
-    .primaryKey()
-    .default(sql`gen_random_uuid()`)
-    .notNull(),
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`).notNull(),
   recovery_event_id: uuid('recovery_event_id')
     .references(/* c8 ignore next */ () => recoveryEvents.id, { onDelete: 'cascade' })
     .notNull(),

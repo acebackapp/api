@@ -1,5 +1,5 @@
-import { pgTable, timestamp, uuid, pgEnum } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
+import { pgEnum, pgTable, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { discs } from './discs';
 import { profiles } from './profiles';
 
@@ -20,10 +20,7 @@ export const RecoveryEventStatus = {
 } as const;
 
 export const recoveryEvents = pgTable('recovery_events', {
-  id: uuid('id')
-    .primaryKey()
-    .default(sql`gen_random_uuid()`)
-    .notNull(),
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`).notNull(),
   disc_id: uuid('disc_id')
     .references(/* c8 ignore next */ () => discs.id, { onDelete: 'cascade' })
     .notNull(),

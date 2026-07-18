@@ -1,5 +1,5 @@
-import { meetupProposals, MeetupProposalStatus } from './meetup-proposals';
 import { getTableColumns, getTableName } from 'drizzle-orm';
+import { MeetupProposalStatus, meetupProposals } from './meetup-proposals';
 
 describe('meetup_proposals schema', () => {
   it('should have the correct table name', () => {
