@@ -1,12 +1,9 @@
-import { pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
+import { pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { discs } from './discs';
 
 export const discPhotos = pgTable('disc_photos', {
-  id: uuid('id')
-    .primaryKey()
-    .default(sql`gen_random_uuid()`)
-    .notNull(),
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`).notNull(),
   disc_id: uuid('disc_id')
     .references(/* c8 ignore next */ () => discs.id, { onDelete: 'cascade' })
     .notNull(),

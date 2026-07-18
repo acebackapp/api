@@ -1,11 +1,8 @@
-import { boolean, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
+import { boolean, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 
 export const profiles = pgTable('profiles', {
-  id: uuid('id')
-    .primaryKey()
-    .default(sql`gen_random_uuid()`)
-    .notNull(),
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`).notNull(),
   username: text('username').notNull(),
   email: text('email'),
   full_name: text('full_name'),

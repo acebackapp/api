@@ -1,5 +1,5 @@
-import { qrCodes, QrCodeStatus } from './qr-codes';
 import { getTableColumns, getTableName } from 'drizzle-orm';
+import { QrCodeStatus, qrCodes } from './qr-codes';
 
 describe('qr_codes schema', () => {
   it('should have the correct table name', () => {

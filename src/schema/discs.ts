@@ -1,5 +1,5 @@
-import { pgTable, text, timestamp, uuid, integer, jsonb, numeric } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
+import { integer, jsonb, numeric, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { profiles } from './profiles';
 import { qrCodes } from './qr-codes';
 
@@ -27,10 +27,7 @@ export function validateFlightNumbers(flightNumbers: FlightNumbers): void {
 }
 
 export const discs = pgTable('discs', {
-  id: uuid('id')
-    .primaryKey()
-    .default(sql`gen_random_uuid()`)
-    .notNull(),
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`).notNull(),
   owner_id: uuid('owner_id')
     .references(/* c8 ignore next */ () => profiles.id, { onDelete: 'cascade' })
     .notNull(),

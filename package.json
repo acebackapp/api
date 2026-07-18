@@ -10,8 +10,8 @@
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
     "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
-    "lint": "eslint . && prettier --check .",
-    "lint:fix": "eslint --fix . && prettier --write .",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
@@ -26,16 +26,14 @@
   "author": "Discr Team",
   "license": "SEE LICENSE IN LICENSE",
   "devDependencies": {
-    "@eslint/js": "^10.0.0",
+    "@biomejs/biome": "^2.5.4",
+    "@swc/core": "^1.15.43",
+    "@swc/jest": "^0.2.39",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.0.0",
     "drizzle-kit": "^0.31.0",
-    "eslint": "^10.0.0",
     "jest": "^30.0.0",
-    "prettier": "^3.7.3",
-    "ts-jest": "^29.2.5",
-    "typescript": "^7.0.0",
-    "typescript-eslint": "^8.48.1"
+    "typescript": "^7.0.0"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.0",
